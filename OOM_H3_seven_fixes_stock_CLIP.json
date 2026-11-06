@@ -1,0 +1,840 @@
+{
+ "last_node_id": 16,
+ "last_link_id": 17,
+ "nodes": [
+  {
+   "id": 1,
+   "type": "UNETLoader",
+   "pos": [
+    0,
+    0
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {},
+   "order": 0,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "MODEL",
+     "type": "MODEL",
+     "links": [
+      3,
+      4
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "UNETLoader"
+   },
+   "widgets_values": [
+    "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+    "default"
+   ],
+   "title": "FIX 02 · PRUNED model (not full INT8 / BF16)",
+   "color": "#5a1a14",
+   "bgcolor": "#7a2a20"
+  },
+  {
+   "id": 2,
+   "type": "CLIPLoader",
+   "pos": [
+    0,
+    200
+   ],
+   "size": [
+    380,
+    110
+   ],
+   "flags": {},
+   "order": 1,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "CLIP",
+     "type": "CLIP",
+     "links": [
+      1
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "CLIPLoader"
+   },
+   "widgets_values": [
+    "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+    "minimax",
+    "default"
+   ],
+   "title": "Stock text encoder · 32B (~15.7 GB) · swap for ClipProj if it OOMs"
+  },
+  {
+   "id": 3,
+   "type": "VAELoader",
+   "pos": [
+    0,
+    420
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 2,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      2,
+      13
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "minimax_h3_video_vae_int8_convrot.safetensors"
+   ],
+   "title": "Video VAE"
+  },
+  {
+   "id": 4,
+   "type": "VAELoader",
+   "pos": [
+    0,
+    540
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 3,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "VAE",
+     "type": "VAE",
+     "links": [
+      15
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAELoader"
+   },
+   "widgets_values": [
+    "minimax_h3_audio_vae_fp32.safetensors"
+   ],
+   "title": "Audio VAE"
+  },
+  {
+   "id": 5,
+   "type": "MiniMaxH3ImageToVideo",
+   "pos": [
+    440,
+    200
+   ],
+   "size": [
+    520,
+    560
+   ],
+   "flags": {},
+   "order": 4,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "clip",
+     "type": "CLIP",
+     "link": 1
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 2
+    },
+    {
+     "name": "first_frame",
+     "type": "IMAGE",
+     "link": null
+    },
+    {
+     "name": "last_frame",
+     "type": "IMAGE",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "positive",
+     "type": "CONDITIONING",
+     "links": [
+      5
+     ]
+    },
+    {
+     "name": "LATENT",
+     "type": "LATENT",
+     "links": [
+      10
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "MiniMaxH3ImageToVideo"
+   },
+   "widgets_values": [
+    "subject_definitions:\n<Subject 1> is a lean man in his forties, short dark hair combed back, clean-shaven, wearing a charcoal grey three-piece suit, a white shirt, a narrow black silk tie and one silver wristwatch on his left wrist only.\n\nsummary:\n<Subject 1> waits alone on a night train platform, checks his single silver watch, then turns his head as a train's light grows in the tunnel. Calm, slow, no fast action.\n\ndetailed_description:\nCinematic live action, shot on 35mm film, shallow depth of field, soft grain, cool blue night light with warm sodium lamps above the platform. Slow dolly-in at chest height. <Subject 1> stands still beside a green iron pillar, charcoal grey three-piece suit, narrow black silk tie, one silver wristwatch on the left wrist. He lifts the left wrist and reads the single silver watch, lowers it, then turns his head toward the tunnel as a white headlight grows in the dark. His expression stays calm and focused.\n\noverall_soundscape:\nQuiet platform room tone, a faint electric hum from the lamps, the soft tick of the watch, a distant train rumble slowly growing.\n\nnon_diegetic_music:\nN/A - no score, no soundtrack, no musical arrangement at any point.",
+    608,
+    352,
+    209
+   ],
+   "title": "FIX 06 · Dossier prompt · 608x352 · 209 frames (FIX 07: keep it short)",
+   "color": "#1d3b3a",
+   "bgcolor": "#27504e"
+  },
+  {
+   "id": 6,
+   "type": "BasicScheduler",
+   "pos": [
+    1020,
+    0
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 5,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 3
+    }
+   ],
+   "outputs": [
+    {
+     "name": "SIGMAS",
+     "type": "SIGMAS",
+     "links": [
+      9
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "BasicScheduler"
+   },
+   "widgets_values": [
+    "simple",
+    20,
+    1.0
+   ],
+   "title": "20 steps · simple"
+  },
+  {
+   "id": 7,
+   "type": "RandomNoise",
+   "pos": [
+    1020,
+    150
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 6,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "NOISE",
+     "type": "NOISE",
+     "links": [
+      6
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "RandomNoise"
+   },
+   "widgets_values": [
+    252063820580846,
+    "fixed"
+   ]
+  },
+  {
+   "id": 8,
+   "type": "KSamplerSelect",
+   "pos": [
+    1020,
+    280
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 7,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "SAMPLER",
+     "type": "SAMPLER",
+     "links": [
+      8
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "KSamplerSelect"
+   },
+   "widgets_values": [
+    "euler"
+   ],
+   "title": "FIX 05 · euler (not SDE / ancestral)",
+   "color": "#5a1a14",
+   "bgcolor": "#7a2a20"
+  },
+  {
+   "id": 9,
+   "type": "BasicGuider",
+   "pos": [
+    1020,
+    400
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 8,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "model",
+     "type": "MODEL",
+     "link": 4
+    },
+    {
+     "name": "conditioning",
+     "type": "CONDITIONING",
+     "link": 5
+    }
+   ],
+   "outputs": [
+    {
+     "name": "GUIDER",
+     "type": "GUIDER",
+     "links": [
+      7
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "BasicGuider"
+   }
+  },
+  {
+   "id": 10,
+   "type": "SamplerCustomAdvanced",
+   "pos": [
+    1380,
+    150
+   ],
+   "size": [
+    340,
+    160
+   ],
+   "flags": {},
+   "order": 9,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "noise",
+     "type": "NOISE",
+     "link": 6
+    },
+    {
+     "name": "guider",
+     "type": "GUIDER",
+     "link": 7
+    },
+    {
+     "name": "sampler",
+     "type": "SAMPLER",
+     "link": 8
+    },
+    {
+     "name": "sigmas",
+     "type": "SIGMAS",
+     "link": 9
+    },
+    {
+     "name": "latent_image",
+     "type": "LATENT",
+     "link": 10
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "LATENT",
+     "links": [
+      11
+     ]
+    },
+    {
+     "name": "denoised_output",
+     "type": "LATENT",
+     "links": []
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "SamplerCustomAdvanced"
+   },
+   "title": "Sampler · no EasyCache"
+  },
+  {
+   "id": 11,
+   "type": "VRAMCleanup",
+   "pos": [
+    1780,
+    150
+   ],
+   "size": [
+    340,
+    110
+   ],
+   "flags": {},
+   "order": 10,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "anything",
+     "type": "*",
+     "link": 11
+    }
+   ],
+   "outputs": [
+    {
+     "name": "output",
+     "type": "*",
+     "links": [
+      12,
+      14
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VRAMCleanup"
+   },
+   "widgets_values": [
+    true,
+    true
+   ],
+   "title": "FIX 07 · Unload all models before decode",
+   "color": "#5a1a14",
+   "bgcolor": "#7a2a20"
+  },
+  {
+   "id": 12,
+   "type": "VAEDecode",
+   "pos": [
+    1780,
+    330
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 11,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 12
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 13
+    }
+   ],
+   "outputs": [
+    {
+     "name": "IMAGE",
+     "type": "IMAGE",
+     "links": [
+      16
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecode"
+   },
+   "title": "VAE Decode (plain, not Tiled)"
+  },
+  {
+   "id": 13,
+   "type": "VAEDecodeAudio",
+   "pos": [
+    1780,
+    450
+   ],
+   "size": [
+    320,
+    110
+   ],
+   "flags": {},
+   "order": 12,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "samples",
+     "type": "LATENT",
+     "link": 14
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": 15
+    }
+   ],
+   "outputs": [
+    {
+     "name": "AUDIO",
+     "type": "AUDIO",
+     "links": [
+      17
+     ]
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VAEDecodeAudio"
+   }
+  },
+  {
+   "id": 14,
+   "type": "VHS_VideoCombine",
+   "pos": [
+    2180,
+    150
+   ],
+   "size": [
+    420,
+    460
+   ],
+   "flags": {},
+   "order": 13,
+   "mode": 0,
+   "inputs": [
+    {
+     "name": "images",
+     "type": "IMAGE",
+     "link": 16
+    },
+    {
+     "name": "audio",
+     "type": "AUDIO",
+     "link": 17
+    },
+    {
+     "name": "meta_batch",
+     "type": "VHS_BatchManager",
+     "link": null
+    },
+    {
+     "name": "vae",
+     "type": "VAE",
+     "link": null
+    }
+   ],
+   "outputs": [
+    {
+     "name": "Filenames",
+     "type": "VHS_FILENAMES",
+     "links": []
+    }
+   ],
+   "properties": {
+    "Node name for S&R": "VHS_VideoCombine"
+   },
+   "widgets_values": {
+    "frame_rate": 24,
+    "loop_count": 0,
+    "filename_prefix": "OOM_H3",
+    "format": "video/h264-mp4",
+    "pix_fmt": "yuv420p",
+    "crf": 19,
+    "save_metadata": true,
+    "trim_to_audio": false,
+    "pingpong": false,
+    "save_output": true
+   }
+  },
+  {
+   "id": 15,
+   "type": "Note",
+   "pos": [
+    0,
+    -760
+   ],
+   "size": [
+    900,
+    680
+   ],
+   "flags": {},
+   "order": 14,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "Note"
+   },
+   "widgets_values": [
+    "OPERATION: OUT OF MEMORY · MiniMax H3 · 7 fixes in one graph\nBeyond the Frame\n\nRe-select your own model, encoder and VAE files in the loaders (left). Red nodes = a fix.\n\nFIX 01 · STOCK TEXT ENCODER (this workflow)\nThe 32B encoder alone needs ~15.7 GB. If you run out of memory before the first frame,\nuse OOM_H3_seven_fixes_ClipProj.json instead: 4B encoder + projection, ~5–8 GB, same wires.\nhttps://github.com/nicolab28/ComfyUI-ClipProj\n\nFIX 02 · PRUNED MODEL\nFull INT8 / BF16 were reported to flicker or render black. Pick a pruned file:\n  ~24 GB VRAM: pruned INT8 (ComfyUI default)\n  ~12 GB VRAM: pruned int8_convrot + --lowvram + lots of system RAM\n  https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/diffusion_models\n\nFIX 07 · VRAM-Cleanup node\nInstall: ComfyUI Manager → 'Comfyui-Memory_Cleanup' (LAOGOU-666), or\ngit clone https://github.com/LAOGOU-666/Comfyui-Memory_Cleanup into custom_nodes.\nIt unloads every model after sampling so the VAE gets the whole card.\nTiled VAE Decode does NOT help with H3 (the H3 VAE already tiles inside).\nFrames must be n % 17 == 5: 5, 22, 39 … 124 (~5 s) … 209 (~8.7 s) … 243 (~10 s).\nOn 16 GB, crashes started above ~209 frames: render short clips, join them in the edit."
+   ]
+  },
+  {
+   "id": 16,
+   "type": "Note",
+   "pos": [
+    1020,
+    -760
+   ],
+   "size": [
+    900,
+    560
+   ],
+   "flags": {},
+   "order": 15,
+   "mode": 0,
+   "inputs": [],
+   "outputs": [],
+   "properties": {
+    "Node name for S&R": "Note"
+   },
+   "widgets_values": [
+    "FIX 03 · THE ENGINE (outside the graph)\nSuddenly 4× slower after an update? One report: PyTorch 2.12.0+cu130 ≈ 16.8 s/step\nvs 2.14.1+cu130 ≈ 62.9 s/step, same workflow.\nRead the PyTorch / CUDA versions in the console at startup while everything is fast,\nwrite them down, and reinstall that version if an update slows you down.\n\nFIX 04 · THE WAREHOUSE (outside the graph)\nOut of memory with memory to spare? Add to the line that starts ComfyUI:\n  python main.py --disable-dynamic-vram\n--lowvram has no effect while Dynamic VRAM is on.\n\nFIX 05 · THE BAD LINE\nCrackling audio: update ComfyUI first. Then plain euler (this graph), no EasyCache\n(none in this graph), and a short clean audio draft as reference if it persists.\n\nFIX 06 · THE DISGUISE\nNo official fix for reference drift. Describe what matters precisely and repeat it\n(see the prompt: ONE watch, narrow black tie), keep clips short, watch the previews\nand stop early. Worth testing: run without --fast fp16_accumulation."
+   ]
+  }
+ ],
+ "links": [
+  [
+   1,
+   2,
+   0,
+   5,
+   0,
+   "CLIP"
+  ],
+  [
+   2,
+   3,
+   0,
+   5,
+   1,
+   "VAE"
+  ],
+  [
+   3,
+   1,
+   0,
+   6,
+   0,
+   "MODEL"
+  ],
+  [
+   4,
+   1,
+   0,
+   9,
+   0,
+   "MODEL"
+  ],
+  [
+   5,
+   5,
+   0,
+   9,
+   1,
+   "CONDITIONING"
+  ],
+  [
+   6,
+   7,
+   0,
+   10,
+   0,
+   "NOISE"
+  ],
+  [
+   7,
+   9,
+   0,
+   10,
+   1,
+   "GUIDER"
+  ],
+  [
+   8,
+   8,
+   0,
+   10,
+   2,
+   "SAMPLER"
+  ],
+  [
+   9,
+   6,
+   0,
+   10,
+   3,
+   "SIGMAS"
+  ],
+  [
+   10,
+   5,
+   1,
+   10,
+   4,
+   "LATENT"
+  ],
+  [
+   11,
+   10,
+   0,
+   11,
+   0,
+   "LATENT"
+  ],
+  [
+   12,
+   11,
+   0,
+   12,
+   0,
+   "*"
+  ],
+  [
+   13,
+   3,
+   0,
+   12,
+   1,
+   "VAE"
+  ],
+  [
+   14,
+   11,
+   0,
+   13,
+   0,
+   "*"
+  ],
+  [
+   15,
+   4,
+   0,
+   13,
+   1,
+   "VAE"
+  ],
+  [
+   16,
+   12,
+   0,
+   14,
+   0,
+   "IMAGE"
+  ],
+  [
+   17,
+   13,
+   0,
+   14,
+   1,
+   "AUDIO"
+  ]
+ ],
+ "groups": [
+  {
+   "title": "FIX 02 · The tasting · pruned model",
+   "bounding": [
+    -20,
+    -60,
+    420,
+    190
+   ],
+   "color": "#7a2a20",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "title": "FIX 01 · The buy-in · stock encoder (see note)",
+   "bounding": [
+    -20,
+    140,
+    420,
+    190
+   ],
+   "color": "#7a2a20",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "title": "FIX 06 · The disguise · describe it precisely, repeat it",
+   "bounding": [
+    420,
+    140,
+    560,
+    640
+   ],
+   "color": "#27504e",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "title": "FIX 05 · The bad line · plain sampler, no cache",
+   "bounding": [
+    1000,
+    -60,
+    740,
+    560
+   ],
+   "color": "#7a2a20",
+   "font_size": 24,
+   "flags": {}
+  },
+  {
+   "title": "FIX 07 · The package · clear the room, then decode",
+   "bounding": [
+    1760,
+    90,
+    380,
+    480
+   ],
+   "color": "#7a2a20",
+   "font_size": 24,
+   "flags": {}
+  }
+ ],
+ "config": {},
+ "extra": {},
+ "version": 0.4
+}
